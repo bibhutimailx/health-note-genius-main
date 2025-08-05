@@ -49,9 +49,9 @@ const ConsultationSession = () => {
     getLanguageLabel
   } = useConsultationSession();
 
-  // Add speech recognition configuration state with best provider
+  // Add speech recognition configuration state - default to browser (no external APIs)
   const [speechConfig, setSpeechConfig] = useState<SpeechRecognitionConfig>({
-    provider: getBestAvailableProvider() as any,
+    provider: 'browser', // Force browser speech recognition to avoid external API issues
     language: 'en-US',
     continuous: true,
     interimResults: false

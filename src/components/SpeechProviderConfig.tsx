@@ -25,14 +25,14 @@ const SpeechProviderConfig: React.FC<SpeechProviderConfigProps> = ({
   const { toast } = useToast();
 
   const providers = [
+    { value: 'browser', label: 'Browser Native', description: 'Built-in browser speech recognition (Recommended - No API key required)' },
+    { value: 'enhanced-browser', label: 'Enhanced Browser', description: 'Improved browser recognition with fallbacks' },
     { value: 'anthropic', label: 'Anthropic Claude', description: 'Best AI model for medical understanding and multilingual support' },
     { value: 'aws-bedrock', label: 'AWS Bedrock', description: 'Enterprise-grade, HIPAA compliant, production ready' },
     { value: 'assemblyai', label: 'AssemblyAI', description: 'Advanced AI-powered recognition' },
     { value: 'google', label: 'Google Cloud', description: 'Google Cloud Speech-to-Text' },
     { value: 'azure', label: 'Azure Speech', description: 'Microsoft Azure Speech Services' },
-    { value: 'reverie', label: 'Reverie', description: 'Indian language optimized' },
-    { value: 'enhanced-browser', label: 'Enhanced Browser', description: 'Improved browser recognition with fallbacks' },
-    { value: 'browser', label: 'Browser Native', description: 'Built-in browser speech recognition' }
+    { value: 'reverie', label: 'Reverie', description: 'Indian language optimized' }
   ];
 
   const languages = [
@@ -308,6 +308,20 @@ const SpeechProviderConfig: React.FC<SpeechProviderConfigProps> = ({
             </Badge>
           )}
         </div>
+
+        {/* Warning for external APIs */}
+        {currentConfig.provider !== 'browser' && currentConfig.provider !== 'enhanced-browser' && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <AlertCircle className="h-5 w-5 text-yellow-600" />
+              <span className="font-medium text-yellow-800">External API Required</span>
+            </div>
+            <p className="text-sm text-yellow-700">
+              This provider requires an API key and may have usage limits. For immediate testing, 
+              switch to "Browser Native" which works without any external dependencies.
+            </p>
+          </div>
+        )}
 
         {/* Test Results */}
         {testResults.length > 0 && (

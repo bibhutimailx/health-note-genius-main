@@ -117,7 +117,7 @@ export const createSpeechRecognitionService = (config: SpeechRecognitionConfig):
         return awsService;
       }
     } catch (error) {
-      console.warn('AWS Transcribe Medical not available, falling back to enhanced regional:', error);
+      console.warn('AWS Transcribe Medical not available, falling back to browser speech recognition:', error);
     }
   }
 
@@ -128,14 +128,19 @@ export const createSpeechRecognitionService = (config: SpeechRecognitionConfig):
     return new EnhancedRegionalSpeechRecognition(config);
   }
   
-  // Priority 3: Browser Speech Recognition (fallback)
-  console.log(`🌐 Using Browser Speech Recognition for ${config.language}`);
+  // Priority 3: Browser Speech Recognition (fallback - most reliable)
+  console.log(`🌐 Using Browser Speech Recognition for ${config.language} (no external API required)`);
   return new BrowserSpeechRecognitionService(config);
 };
 
 // Get the best available speech recognition provider
 export const getBestAvailableProvider = (): 'aws-medical' | 'enhanced-multilingual' | 'browser' | 'basic' => {
-  // Check for AWS Transcribe Medical first
+  // Check for basic browser support first (most reliable, no external APIs)
+  if (typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)) {
+    return 'browser';
+  }
+  
+  // Check for AWS Transcribe Medical (requires credentials)
   if (typeof window !== 'undefined' && window.AWS) {
     return 'aws-medical';
   }
@@ -145,11 +150,6 @@ export const getBestAvailableProvider = (): 'aws-medical' | 'enhanced-multilingu
     return 'enhanced-multilingual';
   }
   
-  // Check for basic browser support
-  if (typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)) {
-    return 'browser';
-  }
-  
   // Fallback to basic support
   return 'basic';
 };
@@ -157,7 +157,7 @@ export const getBestAvailableProvider = (): 'aws-medical' | 'enhanced-multilingu
 // Create speech recognition configuration
 export const createSpeechRecognitionConfig = (language: string = 'en-US'): SpeechRecognitionConfig => {
   return {
-    provider: getBestAvailableProvider(),
+    provider: 'browser', // Default to browser speech recognition (no external APIs)
     language,
     continuous: true,
     interimResults: false
