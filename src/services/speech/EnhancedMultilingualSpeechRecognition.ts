@@ -177,42 +177,9 @@ export class EnhancedMultilingualSpeechRecognition implements SpeechRecognitionS
   }
 
   private async detectLanguageAdvanced(text: string): Promise<string> {
-    try {
-      // Use Claude AI for advanced language detection
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.config.apiKey || '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',
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-3-sonnet-20240229',
-          max_tokens: 50,
-          messages: [
-            {
-              role: 'user',
-              content: `Detect the language of this text and return only the language code (en-US, hi-IN, or-IN, bn-IN, ta-IN, te-IN, ml-IN, kn-IN, gu-IN, mr-IN, pa-IN, ur-IN). Text: "${text}"`
-            }
-          ]
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const detectedCode = data.content[0].text?.trim();
-        
-        // Validate the detected code
-        const validCodes = this.languageModels.map(lm => lm.code);
-        if (detectedCode && validCodes.includes(detectedCode)) {
-          return detectedCode;
-        }
-      }
-    } catch (error) {
-      console.error('AI language detection failed, using fallback:', error);
-    }
-
-    // Fallback to pattern-based detection
+    // Disabled external API calls to prevent 401 errors
+    // Using pattern-based detection instead
+    console.log('Using pattern-based language detection (external APIs disabled)');
     return this.detectLanguageByPattern(text);
   }
 
@@ -242,36 +209,21 @@ export class EnhancedMultilingualSpeechRecognition implements SpeechRecognitionS
   }
 
   private async enhanceWithAI(transcript: string, language: string): Promise<MultilingualResult> {
-    try {
-      const languageModel = this.languageModels.find(lm => lm.code === language);
-      const modelName = languageModel?.model || 'claude-3-sonnet-20240229';
-
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.config.apiKey || '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',
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: modelName,
-          max_tokens: 500,
-          messages: [
-            {
-              role: 'user',
-              content: `Enhance this medical consultation transcript in ${languageModel?.nativeName || language}. 
-              
-              Original: "${transcript}"
-              
-              Please:
-              1. Correct any transcription errors
-              2. Extract medical entities (symptoms, conditions, medications)
-              3. Determine if speaker is doctor or patient
-              4. Return JSON format:
-              {
-                "transcript": "corrected transcript",
-                "confidence": 0.95,
-                "medicalEntities": ["entity1", "entity2"],
+    // Disabled external API calls to prevent 401 errors
+    // Using local processing instead
+    console.log('Using local transcript processing (external APIs disabled)');
+    
+    const languageModel = this.languageModels.find(lm => lm.code === language);
+    const medicalEntities = this.extractBasicMedicalEntities(transcript);
+    const speakerRole = this.detectBasicSpeaker(transcript);
+    
+    return {
+      transcript: transcript,
+      language: language,
+      confidence: 0.85,
+      medicalEntities: medicalEntities,
+      speakerRole: speakerRole
+    };
                 "speakerRole": "doctor" or "patient"
               }`
             }

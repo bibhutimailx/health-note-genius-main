@@ -4,7 +4,7 @@ import { MedicalEntity } from '@/types/consultation';
 // Cache for API responses to avoid repeated calls
 const entityCache = new Map<string, MedicalEntity[]>();
 
-export const extractMedicalEntities = async (text: string, useAnthropic: boolean = true): Promise<MedicalEntity[]> => {
+export const extractMedicalEntities = async (text: string, useAnthropic: boolean = false): Promise<MedicalEntity[]> => {
   // Check cache first
   const cacheKey = text.toLowerCase().trim();
   if (entityCache.has(cacheKey)) {
